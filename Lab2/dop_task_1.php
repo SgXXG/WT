@@ -28,6 +28,14 @@
             echo '<pre>';
             var_dump($arr, $arr2);
             echo '</pre>';
+            /*foreach($array as $brand => $massiv)
+            {
+                foreach($array  as  $inner_key => $value)
+                {
+                    echo "[$array][$inner_key] = $value";
+                }
+            }
+			echo($str);*/
 		?>
 
 </body>

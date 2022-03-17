@@ -17,11 +17,11 @@
         $explode_string = explode(" ",$string);
         $count_array = count($explode_string);
         $out_string = "";
-        for($i=0;$i=$count_array;$i++) {
+        while ($count_array > 0) {
             $count_array--;
             $out_string .= $explode_string[$count_array]." ";
         }
-        echo "<br>".$out_string;
+        echo $out_string;
     ?>
 </body>
 </html>
