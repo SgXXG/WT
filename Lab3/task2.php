@@ -5,7 +5,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Task 01</title>
+    <title>Task 2</title>
 </head>
 <body>
 <?php
@@ -112,14 +112,14 @@ class SafeFormBuilder extends FormBuilder {
     }
 }
 
-foreach ($_POST as $key => $item) {
+/*foreach ($_POST as $key => $item) {
     echo "$key => $item<br>";
-}
+}*/
 
 $formBuilder = new SafeFormBuilder(FormBuilder::METHOD_POST, '/destination.php', 'Send me!');
 $formBuilder->addTextField('someTextField', 'Enter text: ', 'Value');
-$formBuilder->addRadioGroup('radioGroup', 'Radio: ', ['A', 'B', 'C']);
-$formBuilder->addSelectList('selectList', 'Select list:', ['Black', 'White', 'Yellow']);
+$formBuilder->addRadioGroup('radioGroup', 'Radio: ', ['A', 'B', 'C', 'D', 'E']);
+$formBuilder->addSelectList('selectList', 'Select list:', ['Black', 'White', 'Yellow', 'Blue', 'Red']);
 $formBuilder->getForm();
 
 ?>
