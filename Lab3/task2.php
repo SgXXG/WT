@@ -17,7 +17,7 @@ class FormBuilder {
     protected string $formText;
     private string $submitText;
 
-    public function __construct(int $methodType, string $target, string $submitText) {
+    public function __construct(int $methodType, string $action, string $submitText) {
         $methodName = '';
         switch ($methodType){
             case self::METHOD_POST: {
@@ -34,7 +34,7 @@ class FormBuilder {
         }
 
         $this->formText =
-            "<form method=\"$methodName\" target=\"$target\">";
+            "<form method=\"$methodName\" action=\"$action\">";
 
         $this->submitText = $submitText;
     }
