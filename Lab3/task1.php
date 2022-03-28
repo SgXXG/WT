@@ -78,7 +78,7 @@ class FormBuilder {
     }
 }
 
-$formBuilder = new FormBuilder(FormBuilder::METHOD_POST, '/destination.php', 'Send me!');
+$formBuilder = new FormBuilder(FormBuilder::METHOD_POST, '/task1.php', 'Send me!');
 $formBuilder->addTextField('someTextField', 'Enter text: ', 'Value');
 $formBuilder->addRadioGroup('radioGroup', 'Radio: ', ['A', 'B', 'C', 'D', 'E']);
 $formBuilder->addSelectList('selectList', 'Select list:', ['Black', 'White', 'Yellow', 'Blue', 'Red']);

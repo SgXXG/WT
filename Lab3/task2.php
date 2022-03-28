@@ -116,7 +116,7 @@ class SafeFormBuilder extends FormBuilder {
     echo "$key => $item<br>";
 }*/
 
-$formBuilder = new SafeFormBuilder(FormBuilder::METHOD_POST, '/destination.php', 'Send me!');
+$formBuilder = new SafeFormBuilder(FormBuilder::METHOD_POST, '/task2.php', 'Send me!');
 $formBuilder->addTextField('someTextField', 'Enter text: ', 'Value');
 $formBuilder->addRadioGroup('radioGroup', 'Radio: ', ['A', 'B', 'C', 'D', 'E']);
 $formBuilder->addSelectList('selectList', 'Select list:', ['Black', 'White', 'Yellow', 'Blue', 'Red']);
