@@ -5,7 +5,7 @@
 <p><a href="?interval=1">За сегодня</a></p>
 <p><a href="?interval=7">За последнюю неделю</a></p>
 
-<table style="border: 1px solid silver;">
+<table style="border: 1px solid gray;">
 
     <tr>
         <td style="border: 1px solid silver;">Дата</td>
