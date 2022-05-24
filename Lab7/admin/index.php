@@ -21,14 +21,6 @@
             echo '<p><b>Недопустимый параметр!</b></p>';
         }
 
-        $db_host = "localhost";
-        $db_name = "stats";
-        $db_user = "root";
-        $db_password = "stas23";
-
-        $db = mysqli_connect ($db_host, $db_user, $db_password, $db_name) or
-                              die("Невозможно подключиться к указанной базе данных");
-
         $res = mysqli_query($db, "SELECT * FROM `visits` ORDER BY `date` DESC LIMIT $interval");
 
         while ($row = mysqli_fetch_assoc($res)) {
