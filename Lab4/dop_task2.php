@@ -5,60 +5,87 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Dop Task 2</title>
-
-    <style>
-        table {
-            border: 0;
-            border-spacing: 0;
-            border-collapse: collapse;
-        }
-
-        table td, table th {
-            border: 1px solid #000;
-        }
-    </style>
+    <title>dop Task 2</title>
 </head>
 <body>
-<?php
 
-$mysqli = new mysqli('localhost', 'root', 'stas23', 'information_schema');
+<table>
+    <tr>
+        <th>Filename</th>
+        <th>Filesize (MB)</th>
+    </tr>
+    <?php
 
-if($mysqli->connect_error) {
-    die('Ошибка при подключении к БД: ' . $mysqli->connect_error);
-}
+    class FileSystemObject {
+        private const PRECISION = 2;
 
-$result = $mysqli->query('SELECT * FROM COLLATIONS;');
+        private string $filename;
+        private string $filetype;
+        private int $filesize;
 
-if($result->num_rows == 0) {
-    echo 'Table is empty!';
-}
-else {
-    echo '<table>';
+        public function __construct(string $filename) {
+            $this->filename = realpath($filename);
 
-    echo '<tr>';
-    $columns = $mysqli->query('SHOW columns FROM COLLATIONS;');
-    $columnNames = [];
-    foreach ($columns as $column) {
-        $columnName = $column['Field'];
-        $columnNames[] = $columnName;
-        echo "<th>$columnName</th>";
-    }
-    echo '</tr>';
+            if ($this->filename == false) {
+                throw new InvalidArgumentException("Invalid filename!");
+            }
 
-    foreach ($result as $row) {
-        echo '<tr>';
+            $filetype = filetype($filename);
+            if ($filetype == false) {
+                throw new InvalidArgumentException("Invalid filename!");
+            }
+            $this->filetype = $filetype;
 
-        foreach ($columnNames as $columnName) {
-            echo "<td>$row[$columnName]</td>";
+            $this->filesize = filesize($filename);
+
+            if ($this->filesize == false) {
+                throw new InvalidArgumentException("Error when trying to get filesize!");
+            }
         }
 
-        echo '</tr>';
+        public function getName(): string {
+            return $this->filename;
+        }
+
+        public function getBytes(): int {
+            return $this->filesize;
+        }
+
+        public function getKilobytes(): float {
+            return round($this->filesize / 1000, self::PRECISION);
+        }
+
+        public function getMegabytes(): float {
+            return round($this->filesize / 1e6, self::PRECISION);
+        }
+
+        public function getGigabytes(): float {
+            return round($this->filesize / 1e9, self::PRECISION);
+        }
+
+        public function getPetabytes(): float {
+            return round($this->filesize / 1e12, self::PRECISION);
+        }
     }
 
-    echo '</table>';
-}
+    $filedir = __DIR__ . '/../';
+    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($filedir, FilesystemIterator::SKIP_DOTS));
 
-?>
+    foreach ($iterator as $info) {
+        try {
+            $fileobj = new FileSystemObject($info->getPathname());
+
+
+            echo '<tr><td>' . $fileobj->getName() . '</td><td>' . $fileobj->getMegabytes() . '</td></tr>';
+        } catch (Exception) {
+
+        }
+
+    }
+
+
+    ?>
+</table>
+
 </body>
 </html>

@@ -1,5 +1,5 @@
-<!DOCTYPE HTML>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -8,32 +8,82 @@
     <title>Task 1</title>
 </head>
 <body>
-<form method="post" >
-    <textarea name="date" rows="1" cols="10"></textarea><br>
-    <input type="submit" name="submit" value="Submit">
-</form>
+<?php
 
+class FormBuilder {
+    public const METHOD_POST = 0;
+    public const METHOD_GET  = 1;
+
+    private string $formText;
+    private string $submitText;
+
+    public function __construct(int $methodType, string $action, string $submitText) {
+        $methodName = '';
+        switch ($methodType){
+            case self::METHOD_POST: {
+                $methodName = 'post';
+                break;
+            }
+            case self::METHOD_GET: {
+                $methodName = 'get';
+                break;
+            }
+            default: {
+                throw new InvalidArgumentException('Invalid method type value!');
+            }
+        }
+
+        $this->formText =
+            "<form method=\"$methodName\" action=\"$action\">";
+
+        $this->submitText = $submitText;
+    }
+
+    public function addTextField(string $name, string $label, string $defaultValue){
+        $this->addLabelFor($name, $label);
+        $this->formText .=
+            "<input type=\"text\" name=\"$name\" value=\"$defaultValue\" /></br>";
+    }
+
+    public function addRadioGroup(string $name, string $label, array $values){
+        $this->addLabelFor($name, $label);
+        foreach ($values as $value) {
+            $this->formText .=
+                "<input type=\"radio\" name=\"$name\" value=\"$value\" >";
+        }
+        $this->formText .= '<br>';
+    }
+
+    public function addSelectList(string $name, string $label, array $values, int $selectedIndex = 0){
+        $this->addLabelFor($name, $label);
+        $this->formText .= "<select name=\"$name\">";
+        foreach ($values as $index => $value) {
+            $this->formText .=
+                '<option ' . ($selectedIndex == $index++ ? 'selected="selected"' : '') .
+                "value=\"$value\">$value</option>";
+        }
+        $this->formText .= '</select><br>';
+    }
+
+    public function getForm(){
+        echo $this->formText . "
+            <input type=\"submit\" value=\"$this->submitText\" >
+            </form>
+        ";
+    }
+
+    private function addLabelFor(string $name, $text){
+        $this->formText .=
+            "<label for=\"$name\" >$text</label>";
+    }
+}
+
+$formBuilder = new FormBuilder(FormBuilder::METHOD_POST, '/task1.php', 'Send me!');
+$formBuilder->addTextField('someTextField', 'Enter text: ', 'Value');
+$formBuilder->addRadioGroup('radioGroup', 'Radio: ', ['A', 'B', 'C', 'D', 'E']);
+$formBuilder->addSelectList('selectList', 'Select list:', ['Black', 'White', 'Yellow', 'Blue', 'Red']);
+$formBuilder->getForm();
+
+?>
 </body>
 </html>
-
-<?php
-    if(isset($_POST['date'])) {
-
-        $test_data = preg_replace('/[^0-9\.]/u', '', trim($_POST['date']));
-        $test_data_ar = explode('.', $test_data);
-        if(@checkdate($test_data_ar[1], $test_data_ar[0], $test_data_ar[2])) {
-            echo '<br>Дата введена корректно '.$test_data;
-
-            $timeZone = new DateTimeZone ( 'Europe/Minsk' );
-
-            $datetime1 = new DateTime ( $test_data, $timeZone );
-            $datetime2 = new DateTime ();
-
-            $interval = $datetime1->diff ( $datetime2 );
-            echo '<br>Ваш возраст: ';
-            echo $interval->format ( '%y лет %m месяцев %d дней' );
-        }
-        else echo '<br>Дата введена некорректно!';
-    }
-    else
-        echo 'Ничего не введено';

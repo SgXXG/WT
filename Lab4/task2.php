@@ -1,67 +1,127 @@
-<!DOCTYPE HTML>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Task 2</title>
-</head>          
+</head>
 <body>
-	<form method="post">
-	<h3>Введите путь к каталогу</h3>
-	Ваш путь: <input type="text" name="your_path" required><br>
-	<br><input type="submit">
-	</form>
+<?php
 
-</body>
-</html>
+class FormBuilder {
+    public const METHOD_POST = 0;
+    public const METHOD_GET  = 1;
 
- <?php
+    protected string $formText;
+    private string $submitText;
 
-	if(isset($_POST['your_path'])){
-		$my_path = $_POST['your_path'];		
+    public function __construct(int $methodType, string $action, string $submitText) {
+        $methodName = '';
+        switch ($methodType){
+            case self::METHOD_POST: {
+                $methodName = 'post';
+                break;
+            }
+            case self::METHOD_GET: {
+                $methodName = 'get';
+                break;
+            }
+            default: {
+                throw new InvalidArgumentException('Invalid method type value!');
+            }
+        }
 
-		echo "<br> Размер директории $my_path: ". getDirSize($my_path) . " байт.<br><br>";
-		$array = getDirContents($my_path);
+        $this->formText =
+            "<form method=\"$methodName\" action=\"$action\">";
 
-		echo "<table>";
-		echo "<tr><td>Пути файлов</td><td>|</td><td>Размеры</td></tr>";
+        $this->submitText = $submitText;
+    }
 
-		if (is_array($array)){
-			foreach($array as $el){
-			echo "<tr><td>$el</td><td>|</td><td>".filesize($el)."</td></tr>";
-			}
-			
-			echo "</table>";
-		} else echo "Такого пути не существует";
+    public function addTextField(string $name, string $label, string $defaultValue){
+        $this->addLabelFor($name, $label);
+        $this->formText .=
+            "<input type=\"text\" name=\"$name\" value=\"$defaultValue\" ><br>";
+    }
 
-    } else {
-        echo '<br>Вы ещё ничего не ввели!';
-    }    
+    public function addRadioGroup(string $name, string $label, array $values){
+        $this->addLabelFor($name, $label);
+        foreach ($values as $value) {
+            $this->formText .=
+                "<input type=\"radio\" name=\"$name\" value=\"$value\" >";
+        }
+        $this->formText .= '<br>';
+    }
 
+    public function addSelectList(string $name, string $label, array $values, int $selectedIndex = 0){
+        $this->addLabelFor($name, $label);
+        $this->formText .= "<select name=\"$name\">";
+        foreach ($values as $index => $value) {
+            $this->formText .=
+                '<option ' . ($selectedIndex == $index++ ? 'selected="selected"' : '') .
+                "value=\"$value\">$value</option>";
+        }
+        $this->formText .= '</select><br>';
+    }
 
-function getDirContents($path) {
-	if($path!==false && $path!='' && file_exists($path)){
-	    $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
+    public function getForm(){
+        echo $this->formText . "
+            <input type=\"submit\" value=\"$this->submitText\" >
+            </form>
+        ";
+    }
 
-	    $files = array(); 
-	    foreach ($rii as $file)
-	        if (!$file->isDir()){       	
-	            $files[] = $file->getPathname();
-	        }
-	} else return 0;
-    return $files;
+    protected function addLabelFor(string $name, $text){
+        $this->formText .=
+            "<label for=\"$name\" >$text</label>";
+    }
 }
 
+class SafeFormBuilder extends FormBuilder {
+    public function addTextField(string $name, string $label, string $defaultValue){
+        $value = $defaultValue;
+        if(isset($_POST[$name]))
+            $value = $_POST[$name];
 
-function getDirSize($path){
-    $bytestotal = 0;
-    $path = realpath($path);
-    if($path!==false && $path!='' && file_exists($path)){
-        foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)) as $object){
-            $bytestotal += $object->getSize();
+        parent::addTextField($name, $label, $value);
+    }
+
+    public function addRadioGroup(string $name, string $label, array $values){
+        if(!isset($_POST[$name])) {
+            parent::addRadioGroup($name, $label, $values);
+        }
+        else {
+            $this->addLabelFor($name, $label);
+            foreach ($values as $value) {
+                $selectedValue = $value == $_POST[$name] ? ' checked ' : '';
+                $this->formText .=
+                    "<input type=\"radio\" name=\"$name\" value=\"$value\" $selectedValue>";
+            }
+            $this->formText .= '</br>';
         }
     }
-    return $bytestotal;
+
+    public function addSelectList(string $name, string $label, array $values, int $selectedIndex = 0){
+
+        if(!isset($_POST[$name]) || ($index = array_search($_POST[$name], $values)) == false)
+            parent::addSelectList($name, $label, $values, $selectedIndex);
+        else {
+            parent::addSelectList($name, $label, $values, $index);
+        }
+    }
 }
+
+/*foreach ($_POST as $key => $item) {
+    echo "$key => $item<br>";
+}*/
+
+$formBuilder = new SafeFormBuilder(FormBuilder::METHOD_POST, '/task2.php', 'Send me!');
+$formBuilder->addTextField('someTextField', 'Enter text: ', 'Value');
+$formBuilder->addRadioGroup('radioGroup', 'Radio: ', ['A', 'B', 'C', 'D', 'E']);
+$formBuilder->addSelectList('selectList', 'Select list:', ['Black', 'White', 'Yellow', 'Blue', 'Red']);
+$formBuilder->getForm();
+
+?>
+</body>
+</html>

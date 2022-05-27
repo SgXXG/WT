@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -8,30 +8,42 @@
     <title>Task 3</title>
 </head>
 <body>
-
 <?php
-$arr = array(1, 2, 10, 3, 4, 5,
-             array(1, 7, 8, 9),
-             array(3, 4, 5, 7),
-             12);
-$arr2 = array();
-foreach($arr as $v)
-{
-    if(is_array($v))
-    {
-        foreach($v as $v)
-        {
-            $arr2[] = $v;
-        }
-    }
-    else
-        $arr2[] = $v;
-}
-$arr2 = array_unique($arr2);
-echo '<pre>';
-var_dump($arr, $arr2);
-echo '</pre>';
-?>
 
+abstract class Logger {
+    public abstract function log(string $text);
+}
+
+class EchoLogger extends Logger {
+    private bool $showDate;
+
+    public function __construct(bool $showDate) {
+        $this->showDate = $showDate;
+    }
+
+    public function log(string $text) {
+        if($this->showDate) {
+            echo date('Y-m-d H:i:s') . "\t";
+        }
+
+        echo $text;
+    }
+}
+
+class FileLogger extends Logger {
+    private bool $showDate;
+    private string $filename;
+
+    public function __construct(string $filename, bool $showDate) {
+        $this->showDate = $showDate;
+        $this->filename = $filename;
+    }
+
+    public function log(string $text) {
+        file_put_contents($this->filename, $text, FILE_APPEND);
+    }
+}
+
+?>
 </body>
 </html>
